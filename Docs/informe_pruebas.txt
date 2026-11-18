@@ -1,0 +1,183 @@
+================================================================
+=== INFORME DE PRUEBAS Y VALIDACIÓN DEL SISTEMA ===
+=== Proyecto: Sistema IIoT de Monitoreo de Variadores ===
+=== Fecha: 19/10/2026 ===
+=== Estado: 100% de Pruebas Exitosas ===
+================================================================
+
+---------------------------------------------------------
+1. RESUMEN GENERAL
+---------------------------------------------------------
+Durante el desarrollo del sistema IIoT se realizaron un total
+de 65 pruebas exhaustivas que abarcaron todas las capas del
+proyecto (Base de datos, Backend, MQTT, Hardware, Frontend y
+Notificaciones). 
+
+Todas las pruebas fueron superadas exitosamente. Durante el
+proceso se detectaron y corrigieron 11 bugs críticos.
+
+Total de pruebas:        65
+Pruebas exitosas:        65 (100%)
+Pruebas fallidas:        0
+Bugs detectados/corregidos: 11
+
+
+---------------------------------------------------------
+2. TABLA GENERAL DE PRUEBAS REALIZADAS
+---------------------------------------------------------
+
+[CATEGORÍA: BACKEND]
+01. Endpoint de salud: GET /api/health. Resultado: OK (200)
+02. Login correcto: POST /api/login. Resultado: OK (200 + JWT)
+03. Login incorrecto: Contraseña errónea. Resultado: OK (401)
+04. Protección sin token: GET /api/variadores. Resultado: OK (401)
+05. Protección token inválido: Token corrupto. Resultado: OK (401)
+06. Protección por rol (operador): POST /reset. Resultado: OK (403)
+07. Listar variadores: GET /api/variadores (admin). Resultado: OK
+08. Reset variador: POST /api/variadores/1/reset. Resultado: OK
+09. Crear usuario: POST /api/usuarios. Resultado: OK
+10. Usuario duplicado: Nombre existente. Resultado: OK (409)
+11. Editar usuario: PATCH /api/usuarios/3. Resultado: OK
+12. Desactivar usuario: PATCH /estado. Resultado: OK
+13. Login usuario inactivo: Resultado: OK (403)
+14. Bitácora por variador: GET /eventos. Resultado: OK
+15. Reset sin ESP32: POST /reset. Resultado: OK (503)
+
+[CATEGORÍA: MQTT / BROKER]
+16. Conexión backend-broker: Logs. Resultado: OK
+17. Suscripción a topics: Logs. Resultado: OK
+18. Recepción de ALARMA: MQTT Explorer. Resultado: OK
+19. Detección de offline (Last Will): Apagar ESP32. Resultado: OK
+20. Detección de online: Encender ESP32. Resultado: OK
+21. ACL: monitor publica reset: Resultado: OK (Denied)
+22. ACL: usuario iiot_test eliminado: Resultado: OK
+23. Prevención de broker duplicado: Resultado: OK
+
+[CATEGORÍA: HARDWARE (ESP32)]
+24. Conexión WiFi: Monitor Serie. Resultado: OK
+25. Conexión MQTT: Monitor Serie. Resultado: OK
+26. Suscripción a resets: Logs Mosquitto. Resultado: OK
+27. Detección de alarma (GPIO 4): Jumper. Resultado: OK
+28. Acción de reset (GPIO 21): LED. Resultado: OK
+29. Retorno a normal: Retirar jumper. Resultado: OK
+30. Protección pull-down (ruido): Resultado: OK (sin falsos)
+31. Reconexión automática: Reinicio. Resultado: OK
+
+[CATEGORÍA: FRONTEND (FLUTTER)]
+32. Login desde navegador: Resultado: OK
+33. Login incorrecto: Resultado: OK (mensaje rojo)
+34. Grid de 8 variadores: Resultado: OK
+35. Navegación al detalle: Resultado: OK
+36. Sidebar por rol (operador): Resultado: OK
+37. Ocultar admin a operador: Resultado: OK
+38. Reset con confirmación: Resultado: OK
+39. Responsive móvil: Resultado: OK
+40. Bitácora detallada: Resultado: OK
+41. Crear usuario (FAB): Resultado: OK
+42. Editar usuario (Lápiz): Resultado: OK
+43. Activar variador (Switch): Resultado: OK
+44. Estado SIN COMUNICACIÓN (Naranja): Resultado: OK
+45. Control de Overflow en móvil: Resultado: OK
+46. Control de Navigator en móvil: Resultado: OK
+
+[CATEGORÍA: TELEGRAM]
+47. Mensaje de alarma: Resultado: OK
+48. Mensaje de restablecido: Resultado: OK
+49. Prevención de duplicados: Resultado: OK
+50. Ignorar variadores inactivos: Resultado: OK
+51. Notificación de pérdida de comunicación: Resultado: OK
+52. Notificación de comunicación restablecida: Resultado: OK
+53. Enlace clickeable al dashboard: Resultado: OK
+
+[CATEGORÍA: BASE DE DATOS Y SEGURIDAD]
+54. Creación usuario iiot_app: Resultado: OK
+55. Permisos limitados MySQL: Resultado: OK
+56. Backend usa iiot_app: Resultado: OK
+57. Limpieza de eventos huérfanos: Resultado: OK
+58. Rotación de JWT_SECRET: Resultado: OK
+59. Regla Firewall puerto 3000: Resultado: OK
+60. Regla Firewall puerto 5000: Resultado: OK
+61. Red Windows configurada como Privada: Resultado: OK
+
+[CATEGORÍA: INTEGRACIÓN END-TO-END]
+62. Ciclo completo ALARMA -> RESET -> NORMAL: Resultado: OK
+63. Prueba multi-variador (comodín): Resultado: OK
+64. Persistencia de datos tras reinicios: Resultado: OK
+65. Acceso multi-dispositivo (PC/Móvil): Resultado: OK
+
+
+---------------------------------------------------------
+3. HISTORIAL DE BUGS DETECTADOS Y CORREGIDOS
+---------------------------------------------------------
+1. ESP32 no recibía MQTT.
+   Causa: WiFi.setSleep activo.
+   Solución: WiFi.setSleep(false).
+
+2. ESP32 se reiniciaba solo (watchdog).
+   Causa: Función bloqueante en el loop.
+   Solución: Reestructurar a no bloqueante con millis().
+
+3. Callback MQTT con basura.
+   Causa: Uso de String en el callback.
+   Solución: Imprimir byte a byte.
+
+4. "session taken over" en Mosquitto.
+   Causa: 2 procesos mosquitto.exe corriendo.
+   Solución: Detener servicio de Windows y usar 1 manual.
+
+5. Variador 2 duplicado en dashboard.
+   Causa: Múltiples eventos abiertos y LEFT JOIN.
+   Solución: Cerrar huérfanos y usar subquery LIMIT 1.
+
+6. MQTT_HOST con espacios.
+   Causa: Copia/pegado erróneo.
+   Solución: Limpiar la variable en .env y secrets.h.
+
+7. Backend inaccesible desde teléfono.
+   Causa: Reglas de bloqueo de firewall para node.exe.
+   Solución: Red privada y eliminación de reglas.
+
+8. Frontend inaccesible desde teléfono.
+   Causa: Reglas de bloqueo de firewall para dartvm.
+   Solución: Eliminación de reglas de bloqueo.
+
+9. Overflow visual en tarjetas móvil.
+   Causa: childAspectRatio fijo.
+   Solución: LayoutBuilder responsive y diseño compacto.
+
+10. Error de Navigator en móvil.
+    Causa: pushNamed antes de pop del drawer.
+    Solución: Reordenar pop() primero.
+
+11. Botón RESET en variadores inactivos.
+    Causa: Faltaba validar la variable 'activo'.
+    Solución: Agregar if (activo && enAlarma && puedeResetear).
+
+
+---------------------------------------------------------
+4. ESTADÍSTICAS DE COBERTURA
+---------------------------------------------------------
+Backend:      15 pruebas (100% éxito)
+MQTT:          8 pruebas (100% éxito)
+ESP32:         8 pruebas (100% éxito)
+Frontend:     14 pruebas (100% éxito)
+Telegram:      7 pruebas (100% éxito)
+MySQL/Seg:     8 pruebas (100% éxito)
+Integración:   5 pruebas (100% éxito)
+
+
+---------------------------------------------------------
+5. CONCLUSIÓN
+---------------------------------------------------------
+El sistema fue validado en su totalidad. Cada capa
+(desde el hardware hasta la interfaz de usuario) fue probada
+de forma aislada y en conjunto. 
+
+El flujo completo (detección de alarma física -> notificación 
+-> acción del usuario -> pulso de reset físico) opera de 
+manera correcta y segura. El sistema está listo para su uso
+en el entorno local para el cual fue diseñado.
+
+================================================================
+FIN DEL INFORME DE PRUEBAS
+================================================================

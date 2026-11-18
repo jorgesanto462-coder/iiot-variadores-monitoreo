@@ -1,0 +1,360 @@
+================================================================
+=== MANUAL DE USUARIO ===
+=== Sistema de Monitoreo IIoT de Variadores ===
+=== Versión 1.0 ===
+=== Fecha: 19/10/2026 ===
+================================================================
+
+---------------------------------------------------------
+1. INTRODUCCIÓN
+---------------------------------------------------------
+Este manual describe cómo utilizar el sistema de monitoreo
+IIoT de variadores de frecuencia. El sistema permite ver el
+estado de hasta 8 variadores en tiempo real, recibir alertas
+de alarmas por Telegram, consultar el historial de eventos y
+gestionar usuarios y variadores desde una interfaz web.
+
+El sistema está diseñado para funcionar en una red local
+(LAN), sin necesidad de internet para las funciones básicas
+de monitoreo (aunque Telegram sí requiere internet).
+
+---------------------------------------------------------
+2. REQUISITOS PARA USAR EL SISTEMA
+---------------------------------------------------------
+Para acceder al sistema, necesitas:
+
+✅ Un navegador web moderno (Chrome, Edge, Firefox, Safari).
+✅ Estar conectado a la MISMA red WiFi que la PC que corre
+   el sistema.
+✅ Credenciales de acceso (usuario y contraseña).
+✅ (Opcional) La aplicación de Telegram instalada en tu
+   teléfono para recibir notificaciones.
+
+---------------------------------------------------------
+3. CÓMO ACCEDER AL SISTEMA
+---------------------------------------------------------
+El sistema está disponible en la siguiente dirección:
+
+    http://192.168.1.115:5000
+
+Pasos para ingresar:
+
+1. Abre el navegador en tu PC, teléfono o tablet.
+2. Escribe la URL anterior en la barra de direcciones.
+3. Presiona Enter.
+4. Verás la pantalla de inicio de sesión.
+5. Ingresa tu usuario y contraseña.
+6. Haz clic en "Iniciar sesión".
+
+---------------------------------------------------------
+4. USUARIOS DEL SISTEMA Y ROLES
+---------------------------------------------------------
+El sistema tiene 3 tipos de usuarios, cada uno con
+diferentes permisos:
+
+### 4.1. ADMINISTRADOR
+Acceso completo al sistema. Puede:
+- Ver el dashboard.
+- Ver la bitácora.
+- Resetear variadores.
+- Gestionar usuarios (crear, editar, activar/desactivar).
+- Gestionar variadores (activar, editar descripción).
+
+### 4.2. ELECTRICISTA
+Puede:
+- Ver el dashboard.
+- Ver la bitácora.
+- Resetear variadores.
+
+No puede gestionar usuarios ni variadores.
+
+### 4.3. OPERADOR
+Solo puede:
+- Ver el dashboard.
+- Ver la bitácora.
+
+No puede resetear variadores ni gestionar usuarios.
+
+---------------------------------------------------------
+5. PANTALLA PRINCIPAL: DASHBOARD
+---------------------------------------------------------
+Al iniciar sesión, verás el Dashboard con las tarjetas de
+los variadores activos.
+
+### 5.1. Barra lateral (sidebar)
+En el lado izquierdo hay un menú con las secciones
+disponibles según tu rol:
+- 🏠 Dashboard: vista principal con los variadores.
+- 🕐 Bitácora: historial de eventos.
+- ⚙️ Variadores (solo admin): gestión de variadores.
+- 👥 Usuarios (solo admin): gestión de usuarios.
+
+En la parte inferior verás tu nombre de usuario y un botón
+de cerrar sesión.
+
+En teléfonos, el sidebar se oculta y se abre con el botón
+☰ (menú hamburguesa) en la esquina superior izquierda.
+
+### 5.2. Tarjetas de variadores
+Cada tarjeta muestra:
+- Nombre del variador (Variador 1, 2, 3...).
+- Descripción (por ejemplo "Molino").
+- Punto de color y estado:
+   🟢 Verde: NORMAL.
+   🔴 Rojo: ALARMA.
+   🟠 Naranja: SIN COMUNICACIÓN.
+   ⚪ Gris: INACTIVO.
+- Botón BITÁCORA (para ver el historial).
+- Botón RESET (solo si está en ALARMA y tienes permiso).
+
+### 5.3. Actualización automática
+El dashboard se actualiza solo cada 3 segundos. No es
+necesario refrescar la página manualmente.
+
+---------------------------------------------------------
+6. CÓMO RESETEAR UN VARIADOR EN ALARMA
+---------------------------------------------------------
+Si un variador está en ALARMA (rojo) y tienes permiso
+(ADMINISTRADOR o ELECTRICISTA):
+
+1. En la tarjeta del variador en alarma, haz clic en el
+   botón verde RESET.
+2. Aparecerá un diálogo de confirmación:
+   "¿Enviar comando de reset al Variador X?"
+3. Haz clic en "Confirmar".
+4. Verás un mensaje "Comando de reset enviado".
+5. El LED del módulo correspondiente encenderá 500 ms.
+6. Cuando el variador vuelva a la normalidad, la tarjeta
+   pasará a verde en los próximos 3 segundos.
+
+⚠️ Nota: el reset solo funciona si hay comunicación con el
+ESP32. Si el sistema muestra "SIN COMUNICACIÓN", el comando
+no se puede enviar y aparecerá un mensaje de error.
+
+---------------------------------------------------------
+7. CÓMO CONSULTAR LA BITÁCORA
+---------------------------------------------------------
+Para ver el historial de eventos de un variador:
+
+1. En el sidebar, haz clic en "Bitácora".
+2. Verás la lista de los 8 variadores.
+3. Haz clic en el variador que te interese.
+4. Verás el historial de eventos con:
+   - Fecha y hora de inicio de la alarma.
+   - Fecha y hora de fin (o "En curso" si sigue activa).
+   - Duración total de la alarma (ej. "1 min 45 seg").
+
+Los eventos más recientes aparecen primero.
+
+---------------------------------------------------------
+8. CÓMO GESTIONAR USUARIOS (solo ADMINISTRADOR)
+---------------------------------------------------------
+Desde el sidebar, haz clic en "Usuarios".
+
+### 8.1. Crear un nuevo usuario
+1. Haz clic en el botón flotante "+" (esquina inferior
+   derecha).
+2. Rellena:
+   - Nombre de usuario.
+   - Contraseña inicial.
+   - Rol (Administrador, Operador o Electricista).
+3. Haz clic en "Crear".
+
+### 8.2. Editar un usuario
+1. Haz clic en el ícono de lápiz 📝 junto al usuario.
+2. Puedes cambiar:
+   - Nombre de usuario.
+   - Contraseña (marca la casilla "Cambiar contraseña").
+3. Haz clic en "Guardar".
+
+### 8.3. Activar/desactivar un usuario
+- Usa el switch a la derecha de cada usuario.
+- Los usuarios inactivos no pueden iniciar sesión.
+
+### 8.4. Reglas importantes
+- No puedes eliminar usuarios, solo desactivarlos.
+- No puedes duplicar nombres de usuario.
+- El nombre no puede quedar vacío.
+- Si cambias la contraseña de un usuario, este deberá
+  iniciar sesión de nuevo.
+
+---------------------------------------------------------
+9. CÓMO GESTIONAR VARIADORES (solo ADMINISTRADOR)
+---------------------------------------------------------
+Desde el sidebar, haz clic en "Variadores".
+
+### 9.1. Activar un variador inactivo
+1. Busca el variador que dice "Disponible para activar".
+2. Activa el switch a la derecha.
+3. Aparecerá en el dashboard como activo.
+
+### 9.2. Editar la descripción
+1. Haz clic en el ícono de lápiz 📝 del variador.
+2. Cambia la descripción (por ejemplo "Molino principal").
+3. Haz clic en "Guardar".
+4. El dashboard mostrará la nueva descripción en la próxima
+   actualización.
+
+### 9.3. Desactivar un variador
+1. Usa el switch para apagarlo.
+2. Dejará de aparecer como activo en el dashboard.
+
+⚠️ Nota: los GPIOs (pines del ESP32) son fijos y no se
+pueden cambiar desde la interfaz. Solo el administrador
+puede activar o cambiar la descripción.
+
+---------------------------------------------------------
+10. NOTIFICACIONES POR TELEGRAM
+---------------------------------------------------------
+El sistema envía notificaciones automáticas al grupo de
+Telegram "Alarmas IIoT Variadores".
+
+### 10.1. Tipos de notificaciones
+
+**Alarma detectada:**
+🚨 ALARMA - Variador X (descripción)
+El Variador X entró en estado de ALARMA.
+🕒 Hora: DD/MM/AAAA HH:MM:SS
+👉 Abrir Dashboard
+
+**Alarma restablecida:**
+✅ RESTABLECIDO - Variador X (descripción)
+El Variador X volvió a estado NORMAL.
+🕒 Hora: DD/MM/AAAA HH:MM:SS
+⏱️ Duración de la alarma: X min Y seg
+👉 Abrir Dashboard
+
+**Pérdida de comunicación:**
+⚠️ Se perdió la comunicación con el ESP32
+Los estados de los variadores NO son confiables hasta que
+el ESP32 regrese.
+
+**Comunicación restablecida:**
+✅ Comunicación con el ESP32 restablecida
+Los estados de los variadores son confiables de nuevo.
+
+### 10.2. Enlace al dashboard
+Cada mensaje tiene un enlace "Abrir Dashboard" que abre el
+sistema en el navegador del teléfono (si estás en la misma
+red WiFi).
+
+### 10.3. Sin duplicados
+Si hay una alarma activa y el ESP32 se reinicia, el sistema
+NO envía un segundo mensaje. Solo notifica cuando hay
+cambios reales de estado.
+
+---------------------------------------------------------
+11. CÓMO INTERPRETAR LOS ESTADOS
+---------------------------------------------------------
+| Color  | Estado            | Significado                    |
+|--------|-------------------|--------------------------------|
+| 🟢      | NORMAL            | El variador funciona bien.     |
+| 🔴      | ALARMA            | El variador tiene una falla.   |
+| 🟠      | SIN COMUNICACIÓN  | El ESP32 está desconectado.    |
+| ⚪      | INACTIVO          | El variador no está habilitado.|
+
+⚠️ Si ves "SIN COMUNICACIÓN" en todos los variadores:
+- El ESP32 se desconectó de la red o se apagó.
+- Los estados mostrados pueden estar desactualizados.
+- No se puede resetear ningún variador hasta que vuelva
+  la comunicación.
+- El sistema enviará un mensaje a Telegram cuando el ESP32
+  se recupere.
+
+---------------------------------------------------------
+12. CÓMO CERRAR SESIÓN
+---------------------------------------------------------
+1. En el sidebar (PC) o en el menú ☰ (móvil), busca el
+   ícono de salir 🚪 en la parte inferior.
+2. Haz clic en él.
+3. Volverás a la pantalla de login.
+
+Tu sesión expira automáticamente después de 8 horas de
+inactividad.
+
+---------------------------------------------------------
+13. PROBLEMAS COMUNES Y SOLUCIONES
+---------------------------------------------------------
+
+### 13.1. No puedo iniciar sesión
+- Verifica que estás conectado a la misma red WiFi que la
+  PC del sistema.
+- Verifica que la URL es http://192.168.1.115:5000.
+- Verifica tu usuario y contraseña (respeta mayúsculas).
+- Si olvidaste tu contraseña, pide al administrador que la
+  resetee.
+
+### 13.2. El dashboard no se actualiza
+- Verifica que el backend y el ESP32 estén corriendo.
+- Si ves "SIN COMUNICACIÓN", el ESP32 se desconectó.
+- Espera 3 segundos, el polling es automático.
+
+### 13.3. No puedo resetear un variador
+- Verifica que tienes el rol ADMINISTRADOR o ELECTRICISTA.
+- Verifica que el variador está en ALARMA (no NORMAL ni
+  INACTIVO).
+- Si ves "SIN COMUNICACIÓN", espera a que el ESP32 vuelva.
+
+### 13.4. No recibo notificaciones en Telegram
+- Verifica que la app de Telegram está instalada.
+- Verifica que estás en el grupo "Alarmas IIoT Variadores".
+- El sistema no notifica eventos repetidos.
+
+### 13.5. El sistema no carga
+- Verifica que estás en la red WiFi correcta.
+- Verifica que la PC del sistema está encendida.
+- Pide al administrador que verifique que el backend y
+  Mosquitto estén corriendo.
+
+---------------------------------------------------------
+14. RECOMENDACIONES DE USO
+---------------------------------------------------------
+✅ Usa contraseñas seguras (mínimo 8 caracteres, mayúsculas
+   y minúsculas, números y símbolos).
+✅ No compartas tus credenciales con otros usuarios.
+✅ Cierra sesión cuando uses una PC compartida.
+✅ Configura el grupo de Telegram para recibir alertas en
+   tu teléfono.
+✅ Revisa la bitácora periódicamente para identificar
+   patrones de fallas.
+
+⚠️ Si eres administrador:
+- No compartas el archivo .env.
+- Cambia la contraseña inicial de los usuarios que crees.
+- Revisa los usuarios periódicamente y desactiva los que ya
+  no estén activos.
+
+---------------------------------------------------------
+15. GLOSARIO
+---------------------------------------------------------
+- **Alarma:** estado de falla del variador.
+- **Bitácora:** historial de eventos y alarmas.
+- **Dashboard:** pantalla principal con los estados.
+- **ESP32:** microcontrolador que conecta los variadores al
+  sistema.
+- **JWT:** token de sesión que te permite acceder al sistema.
+- **Normal:** estado de funcionamiento del variador.
+- **Polling:** actualización automática cada 3 segundos.
+- **Reset:** comando para restablecer un variador en alarma.
+- **Rol:** permiso asignado a un usuario (Administrador,
+  Operador, Electricista).
+- **SIN COMUNICACIÓN:** estado del sistema cuando el ESP32
+  se desconecta.
+- **Variador:** equipo industrial que controla motores.
+
+---------------------------------------------------------
+16. CONTACTO Y SOPORTE
+---------------------------------------------------------
+Si tienes problemas que no puedes resolver con este manual,
+contacta al administrador del sistema.
+
+Antes de reportar un problema, reúne esta información:
+- Tu usuario y rol.
+- La URL donde intentaste acceder.
+- El mensaje de error que aparece.
+- Si es posible, una captura de pantalla.
+- La hora aproximada del problema.
+
+================================================================
+FIN DEL MANUAL DE USUARIO
+================================================================

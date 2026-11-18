@@ -1,0 +1,25 @@
+# ==========================================================
+# ACL - Lista de control de acceso por usuario (Mosquitto)
+# ==========================================================
+# Por defecto, Mosquitto DENIEGA todo lo que no esté aquí.
+# Cada usuario tiene solo los permisos mínimos necesarios.
+
+# ---------- ESP32 ----------
+# Publica su propio estado y los estados de los variadores.
+# Solo puede ESCUCHAR los resets (para ejecutarlos).
+user esp32_user
+topic write industrial/esp32/status
+topic write industrial/variadores/+/estado
+topic read industrial/variadores/+/reset
+
+# ---------- Backend Node.js ----------
+# Escucha estados y es el ÚNICO que puede publicar resets.
+user backend_user
+topic read industrial/esp32/status
+topic read industrial/variadores/+/estado
+topic write industrial/variadores/+/reset
+
+# ---------- Usuario de monitoreo (solo lectura) ----------
+# Para MQTT Explorer. Solo puede VER, nunca publicar.
+user monitor
+topic read industrial/#
